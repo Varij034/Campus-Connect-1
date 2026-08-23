@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
+# Install CPU-only PyTorch to drastically reduce image size (saves ~4-5GB)
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
 # Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt

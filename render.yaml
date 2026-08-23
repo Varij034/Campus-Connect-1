@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: campus-connect-backend
+    env: docker
+    region: oregon
+    plan: free
+    rootDir: Backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    # We define the environment variables the backend needs.
+    # 'sync: false' means Render will prompt you to enter the real values securely in their dashboard.
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8000
+      - key: API_RELOAD
+        value: "false"
+      - key: POSTGRES_URL
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: campus_connect
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRATION_HOURS
+        value: 24
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: LOG_LEVEL
+        value: INFO
+
+    # NOTE: If you need user uploads to persist across deployments and restarts,
+    # you must upgrade to a paid Render plan and uncomment the disk configuration below:
+    # disk:
+    #   name: backend-uploads
+    #   mountPath: /app/uploads
+    #   sizeGB: 1

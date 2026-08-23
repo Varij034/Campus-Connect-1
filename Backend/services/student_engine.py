@@ -26,14 +26,22 @@ class StudentJobMatchingEngine:
     
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
         """
-        Initialize the matching engine with a semantic model.
+        Initialize the matching engine.
+        Model loading is deferred until first use to optimize startup time.
         
         Args:
             model_name: Sentence transformer model for embeddings
         """
-        print("Loading AI Job Matching Engine...")
-        self.model = SentenceTransformer(model_name)
-        print("✓ Matching Engine Ready!")
+        self.model_name = model_name
+        self._model = None
+    
+    def _get_model(self):
+        """Lazy-load the model when needed."""
+        if self._model is None:
+            print("Loading AI Job Matching Engine...")
+            self._model = SentenceTransformer(self.model_name)
+            print("✓ Matching Engine Ready!")
+        return self._model
     
     def search_jobs(self, 
                    student_query: str, 
@@ -62,7 +70,7 @@ class StudentJobMatchingEngine:
         if query_skills:
             filtered_jobs = []
             query_skills_lower = [skill.lower() for skill in query_skills]
-            for job in jobs:
+            for i, job in enumerate(jobs):
                 job_text = f"{job.get('title', '')} {job.get('description', '')} {job.get('requirements', '')}".lower()
                 # Check if job contains any of the required skills (using word boundaries for exact matches)
                 job_contains_skill = False
@@ -79,8 +87,10 @@ class StudentJobMatchingEngine:
         if not jobs:
             return []
         
+        model = self._get_model()
+        
         # Encode student query for semantic search
-        query_embedding = self.model.encode(student_query, normalize_embeddings=True)
+        query_embedding = model.encode(student_query, normalize_embeddings=True)
         
         # Prepare job texts for encoding
         job_texts = []
@@ -89,7 +99,7 @@ class StudentJobMatchingEngine:
             job_texts.append(job_text)
         
         # Encode all jobs
-        job_embeddings = self.model.encode(job_texts, normalize_embeddings=True)
+        job_embeddings = model.encode(job_texts, normalize_embeddings=True)
         
         # Calculate semantic similarity
         similarities = cosine_similarity([query_embedding], job_embeddings)[0]
@@ -388,20 +398,28 @@ class ResumeFeedbackEngine:
     """
     
     def __init__(self):
-        """Initialize resume feedback engine."""
-        print("Loading Resume Feedback Engine...")
-        # Use a lightweight text generation model for MVP
-        try:
-            self.generator = pipeline(
-                "text-generation",
-                model="gpt2",  # Lightweight for MVP
-                max_length=200,
-                device=-1  # CPU
-            )
-        except Exception as e:
-            print(f"Note: Using fallback feedback generation (model loading issue: {e})")
-            self.generator = None
-        print("✓ Resume Feedback Engine Ready!")
+        """
+        Initialize resume feedback engine.
+        Model loading is deferred until first use to optimize startup time.
+        """
+        self._generator = None
+    
+    def _get_generator(self):
+        """Lazy-load the generator when needed."""
+        if self._generator is None:
+            print("Loading Resume Feedback Engine...")
+            try:
+                self._generator = pipeline(
+                    "text-generation",
+                    model="gpt2",  # Lightweight for MVP
+                    max_length=200,
+                    device=-1  # CPU
+                )
+            except Exception as e:
+                print(f"Note: Using fallback feedback generation (model loading issue: {e})")
+                self._generator = "fallback"  # Use string to indicate fallback so we don't retry loading
+            print("✓ Resume Feedback Engine Ready!")
+        return self._generator if self._generator != "fallback" else None
     
     def generate_feedback(self,
                          resume_text: str,

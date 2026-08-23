@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 from database.postgres import get_db
 from database.models import User, Candidate, Application, Job, ApplicationStatus
-from database.schemas import CandidateResponse
+from schemas.api import CandidateResponse
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/tpo", tags=["TPO"])

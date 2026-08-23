@@ -13,9 +13,9 @@ from auth.dependencies import get_current_active_user
 from database.models import User
 from database.mongodb import get_mongo_db
 
-from jd_analyzer.resume_parser import extract_text_from_resume
-from jd_analyzer.skill_analyzer import analyze_missing_skills
-from jd_analyzer.job_descriptions import get_job_description
+from services.jd_analyzer.resume_parser import extract_text_from_resume
+from services.jd_analyzer.skill_analyzer import analyze_missing_skills
+from services.jd_analyzer.job_descriptions import get_job_description
 
 router = APIRouter(prefix="/api/v1/jd-analyzer", tags=["JD Analyzer"])
 

@@ -7,11 +7,11 @@ import uuid
 from database.postgres import get_db
 from database.mongodb import get_mongo_db
 from database.models import User, Job, Application, Evaluation, Candidate, ApplicationStatus
-from database.schemas import ATSScoreRequest, ATSScoreResponse, EvaluationResponse
-from models import JobRequirement, ResumeData
+from schemas.api import ATSScoreRequest, ATSScoreResponse, EvaluationResponse
+from schemas.domain import JobRequirement, ResumeData
 from pydantic import BaseModel
-from ats_engine import ATSEngine
-from resume_parser import ResumeParser
+from services.ats_engine import ATSEngine
+from services.resume_parser import ResumeParser
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/ats", tags=["ATS"])

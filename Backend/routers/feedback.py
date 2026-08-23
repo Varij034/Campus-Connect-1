@@ -6,11 +6,11 @@ import uuid
 from database.postgres import get_db
 from database.mongodb import get_mongo_db
 from database.models import User, Evaluation
-from database.schemas import FeedbackResponse
-from models import JobRequirement, ResumeData
-from feedback_generator import FeedbackGenerator
-from ats_engine import ATSEngine
-from resume_parser import ResumeParser
+from schemas.api import FeedbackResponse
+from schemas.domain import JobRequirement, ResumeData
+from services.feedback_generator import FeedbackGenerator
+from services.ats_engine import ATSEngine
+from services.resume_parser import ResumeParser
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/feedback", tags=["Feedback"])

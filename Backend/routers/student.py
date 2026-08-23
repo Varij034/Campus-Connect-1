@@ -6,14 +6,14 @@ from typing import List, Optional
 
 from database.postgres import get_db
 from database.models import User, Job, Candidate, Application, Evaluation
-from database.schemas import (
+from schemas.api import (
     JobSearchRequest, JobSearchResponse,
     SkillGapRequest, SkillGapResponse,
     ResumeFeedbackRequest,
     RejectionInterpretRequest, RejectionInterpretResponse,
     StudentApplicationResponse
 )
-from student_engine import CampusConnectStudentEngine
+from services.student_engine import CampusConnectStudentEngine
 from auth.dependencies import get_current_active_user
 from config import USE_QDRANT_MATCHING, QDRANT_COLLECTION_JOBS, USE_LLM_FEEDBACK
 from vector.embedder import get_embedder

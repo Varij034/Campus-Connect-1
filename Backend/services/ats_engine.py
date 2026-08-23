@@ -4,7 +4,7 @@ Scores resumes based on job requirements and various criteria
 """
 
 from typing import Dict, List, Tuple
-from models import ResumeData, JobRequirement
+from schemas.domain import ResumeData, JobRequirement
 import re
 from difflib import SequenceMatcher
 

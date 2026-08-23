@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from database.postgres import get_db
 from database.models import User, UserRole
-from database.schemas import UserCreate, UserResponse, Token, UserRole as SchemaUserRole
+from schemas.api import UserCreate, UserResponse, Token, UserRole as SchemaUserRole
 from auth.password import verify_password, get_password_hash
 from auth.jwt_handler import create_access_token
 from auth.dependencies import get_current_active_user

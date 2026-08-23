@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database.postgres import get_db
 from database.models import User
-from database.schemas import ChatMessageRequest, ChatMessageResponse
-from chat_engine import ChatOrchestrator, StudentChatOrchestrator
+from schemas.api import ChatMessageRequest, ChatMessageResponse
+from services.chat_engine import ChatOrchestrator, StudentChatOrchestrator
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/chat", tags=["Chat"])

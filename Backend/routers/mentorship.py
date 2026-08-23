@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from database.postgres import get_db
 from database.models import User, Candidate, MentorProfile, MentorshipRequest, UserRole
-from database.schemas import (
+from schemas.api import (
     MentorProfileResponse,
     MentorProfileCreate,
     MentorshipRequestCreate,

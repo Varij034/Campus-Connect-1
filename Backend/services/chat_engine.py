@@ -8,8 +8,8 @@ from typing import Dict, Any, List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
 from database.models import Job, Candidate, Application, Evaluation, ApplicationStatus
-from database.schemas import JobResponse, CandidateResponse, EvaluationResponse
-from student_engine import CampusConnectStudentEngine
+from schemas.api import JobResponse, CandidateResponse, EvaluationResponse
+from services.student_engine import CampusConnectStudentEngine
 from config import USE_LLM_FEEDBACK, USE_LLM_CHAT
 from llm.student_feedback import (
     generate_resume_feedback_llm,
@@ -674,7 +674,7 @@ class DataRetriever:
     
     def search_jobs_for_student(self, query: str, student_skills: List[str], top_k: int = 10) -> List[Dict[str, Any]]:
         """Search jobs using student engine"""
-        from student_engine import CampusConnectStudentEngine
+        from services.student_engine import CampusConnectStudentEngine
         
         # Get all jobs
         jobs = self.db.query(Job).all()
@@ -707,7 +707,7 @@ class DataRetriever:
     
     def analyze_skill_gap_for_job(self, job_id: int, student_skills: List[str]) -> Optional[Dict[str, Any]]:
         """Analyze skill gap for a specific job"""
-        from student_engine import CampusConnectStudentEngine
+        from services.student_engine import CampusConnectStudentEngine
         
         job = self.db.query(Job).filter(Job.id == job_id).first()
         

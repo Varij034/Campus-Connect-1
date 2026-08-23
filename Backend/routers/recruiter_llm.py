@@ -7,7 +7,7 @@ from auth.dependencies import get_current_active_user
 from config import GROQ_API_KEY
 from database.models import User, Job, Candidate
 from database.postgres import get_db
-from database.schemas import CandidateResponse, JobResponse
+from schemas.api import CandidateResponse, JobResponse
 from llm.groq_client import get_groq_client
 
 

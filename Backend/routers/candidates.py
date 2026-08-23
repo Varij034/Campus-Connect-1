@@ -6,14 +6,14 @@ from typing import List, Optional
 from database.postgres import get_db
 from database.mongodb import get_mongo_db
 from database.models import User, Candidate, Application, Evaluation, Job
-from database.schemas import (
+from schemas.api import (
     CandidateResponse, CandidateCreate, CandidateUpdate,
     ApplicationResponse, EvaluationResponse
 )
-from models import JobRequirement, ResumeData, CandidateEvaluationRequest, CandidateEvaluationResponse, ATSResult, RejectionFeedback
-from resume_parser import ResumeParser
-from ats_engine import ATSEngine
-from feedback_generator import FeedbackGenerator
+from schemas.domain import JobRequirement, ResumeData, CandidateEvaluationRequest, CandidateEvaluationResponse, ATSResult, RejectionFeedback
+from services.resume_parser import ResumeParser
+from services.ats_engine import ATSEngine
+from services.feedback_generator import FeedbackGenerator
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/candidates", tags=["Candidates"])

@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from database.postgres import get_db
 from database.models import User, Candidate, Event, EventRegistration, UserRole
-from database.schemas import EventResponse, EventCreate, EventRegistrationResponse
+from schemas.api import EventResponse, EventCreate, EventRegistrationResponse
 from auth.dependencies import get_current_active_user
 
 router = APIRouter(prefix="/api/v1/events", tags=["Events"])

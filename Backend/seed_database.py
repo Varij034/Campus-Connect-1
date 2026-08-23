@@ -18,7 +18,7 @@ from database.models import (
     TestAttempt, Conversation, Message,
 )
 from auth.password import get_password_hash
-from resume_parser import ResumeParser
+from services.resume_parser import ResumeParser
 
 # Dummy resume data for students
 DUMMY_RESUMES = {

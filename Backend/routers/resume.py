@@ -8,8 +8,8 @@ import uuid
 
 from database.postgres import get_db
 from database.mongodb import get_mongo_db
-from database.schemas import ResumeParseRequest, ResumeParseResponse
-from resume_parser import ResumeParser
+from schemas.api import ResumeParseRequest, ResumeParseResponse
+from services.resume_parser import ResumeParser
 from auth.dependencies import get_current_active_user
 from database.models import User, Candidate
 from config import (

@@ -8,7 +8,7 @@ import uuid
 from database.postgres import get_db
 from database.mongodb import get_mongo_db
 from database.models import User, Job, Application
-from database.schemas import JobCreate, JobUpdate, JobResponse
+from schemas.api import JobCreate, JobUpdate, JobResponse
 from auth.dependencies import get_current_active_user
 from config import USE_QDRANT_MATCHING, QDRANT_COLLECTION_JOBS
 from vector.embedder import get_embedder

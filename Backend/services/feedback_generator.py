@@ -4,7 +4,7 @@ Generates detailed feedback and recommendations for rejected candidates
 """
 
 from typing import Dict, List
-from models import JobRequirement
+from schemas.domain import JobRequirement
 
 
 class FeedbackGenerator:

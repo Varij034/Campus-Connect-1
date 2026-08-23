@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRATION_HOURS
-from database.schemas import TokenData
+from schemas.api import TokenData
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

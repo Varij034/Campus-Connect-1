@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from database.postgres import get_db
 from database.models import User, Candidate, Job, Conversation, Message
-from database.schemas import (
+from schemas.api import (
     ConversationResponse,
     ConversationCreate,
     MessageResponse,

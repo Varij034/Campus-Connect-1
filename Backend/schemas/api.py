@@ -1,6 +1,6 @@
 """Pydantic schemas for API requests and responses"""
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
@@ -90,6 +90,14 @@ class CandidateUpdate(BaseModel):
     phone: Optional[str] = None
     skills: Optional[List[str]] = None
     linkedin_url: Optional[str] = None
+    location: Optional[str] = None
+    education: Optional[str] = None
+    college: Optional[str] = None
+    branch: Optional[str] = None
+    graduation_year: Optional[str] = None
+    cgpa: Optional[str] = None
+    bio: Optional[str] = None
+    experience: Optional[str] = None
 
 
 class CandidateResponse(BaseModel):
@@ -104,8 +112,23 @@ class CandidateResponse(BaseModel):
     verified_at: Optional[datetime] = None
     verified_by: Optional[int] = None
     linkedin_url: Optional[str] = None
+    location: Optional[str] = None
+    education: Optional[str] = None
+    college: Optional[str] = None
+    branch: Optional[str] = None
+    graduation_year: Optional[str] = None
+    cgpa: Optional[str] = None
+    bio: Optional[str] = None
+    experience: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime]
+
+    @field_validator('skills_json', mode='before')
+    @classmethod
+    def validate_skills_json(cls, v):
+        if isinstance(v, dict) and 'skills' in v:
+            return v['skills']
+        return v
 
     class Config:
         from_attributes = True

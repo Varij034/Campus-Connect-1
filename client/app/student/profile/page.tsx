@@ -17,7 +17,10 @@ export default function ProfilePage() {
     location: '',
     bio: '',
     skills: [] as string[],
-    education: '',
+    college: '',
+    branch: '',
+    graduationYear: '',
+    cgpa: '',
     experience: '',
     resume: '',
   });
@@ -39,8 +42,11 @@ export default function ProfilePage() {
         phone: candidate.phone || '',
         location: (candidate as any).location || '',
         bio: (candidate as any).bio || '',
-        skills: candidate.skills_json?.skills || [],
-        education: (candidate as any).education || '',
+        skills: Array.isArray(candidate.skills_json) ? candidate.skills_json : ((candidate.skills_json as any)?.skills || []),
+        college: (candidate as any).college || '',
+        branch: (candidate as any).branch || '',
+        graduationYear: (candidate as any).graduation_year || '',
+        cgpa: (candidate as any).cgpa || '',
         experience: (candidate as any).experience || '',
         resume: candidate.resume_id || '',
       });
@@ -78,8 +84,11 @@ export default function ProfilePage() {
         phone: formData.phone,
         location: formData.location,
         bio: formData.bio,
-        skills_json: { skills: formData.skills },
-        education: formData.education,
+        skills: formData.skills,
+        college: formData.college,
+        branch: formData.branch,
+        graduation_year: formData.graduationYear,
+        cgpa: formData.cgpa,
         experience: formData.experience,
       });
       await refreshUser();
@@ -230,17 +239,44 @@ export default function ProfilePage() {
               <div className="card-body">
                 <h2 className="card-title text-2xl text-base-content mb-4">Education & Experience</h2>
                 <div className="space-y-4">
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Education</span>
-                    </label>
-                    <div className="relative">
-                      <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-base-content/50" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label"><span className="label-text">College</span></label>
+                      <div className="relative">
+                        <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-base-content/50" />
+                        <input
+                          type="text"
+                          value={formData.college}
+                          onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                          className="input input-bordered w-full pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="label"><span className="label-text">Branch</span></label>
                       <input
                         type="text"
-                        value={formData.education}
-                        onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                        className="input input-bordered w-full pl-10"
+                        value={formData.branch}
+                        onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="label"><span className="label-text">Graduation Year</span></label>
+                      <input
+                        type="text"
+                        value={formData.graduationYear}
+                        onChange={(e) => setFormData({ ...formData, graduationYear: e.target.value })}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="label"><span className="label-text">CGPA</span></label>
+                      <input
+                        type="text"
+                        value={formData.cgpa}
+                        onChange={(e) => setFormData({ ...formData, cgpa: e.target.value })}
+                        className="input input-bordered w-full"
                       />
                     </div>
                   </div>

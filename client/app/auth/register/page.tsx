@@ -62,13 +62,13 @@ export default function RegisterPage() {
       // Auto-login done inside register; get current user and redirect
       const userInfo = await authApi.getMe();
       if (userInfo.role === UserRole.STUDENT) {
-        router.push('/student/dashboard');
+        router.push('/student/onboarding');
       } else if (userInfo.role === UserRole.RECRUITER) {
         router.push('/hr/dashboard');
       } else if (userInfo.role === UserRole.TPO) {
         router.push('/tpo/dashboard');
       } else {
-        router.push('/student/dashboard');
+        router.push('/student/onboarding');
       }
     } catch (error) {
       const errorMessage = handleApiError(error);

@@ -25,14 +25,12 @@ const ProfileField = ({ label, value, icon }: ProfileFieldProps) => (
 interface ProfileData {
   sid: string;
   name: string;
+  email: string;
+  phone: string;
   college: string;
   branch: string;
   cgpa: string;
-  email?: string;
-  phone?: string;
-  year?: string;
-  graduationYear?: string;
-  location?: string;
+  location: string;
   resume?: {
     name: string;
     url: string;
@@ -43,22 +41,27 @@ interface ProfileData {
 
 interface ProfileSectionProps {
   profileData: ProfileData;
+  stats?: {
+    applications: number;
+    interviews: number;
+  };
   onEditProfile?: () => void;
 }
 
-export default function ProfileSection({ profileData, onEditProfile }: ProfileSectionProps) {
+export default function ProfileSection({ 
+  profileData, 
+  stats = { applications: 0, interviews: 0 }, 
+  onEditProfile 
+}: ProfileSectionProps) {
   const [badges, setBadges] = useState<CandidateBadge[]>([]);
   const { 
     sid, 
     name, 
-    college, 
-    branch, 
-    cgpa, 
-    email = 'john.doe@example.com',
-    phone = '+91 98765 43210',
-    year = 'Final Year',
-    graduationYear = '2024',
-    location = 'Bangalore, India',
+    email, 
+    phone, 
+    college,
+    branch,
+    cgpa,
     resume, 
     isVerified,
     profileCompletion = 85
@@ -118,10 +121,7 @@ export default function ProfileSection({ profileData, onEditProfile }: ProfileSe
           
           <ProfileField label="College" value={college} icon={<GraduationCap className="w-4 h-4" />} />
           <ProfileField label="Branch" value={branch} icon={<Award className="w-4 h-4" />} />
-          {/* <ProfileField label="Year" value={year} icon={<Calendar className="w-4 h-4" />} />
-          <ProfileField label="Graduation" value={graduationYear} icon={<Calendar className="w-4 h-4" />} /> */}
           <ProfileField label="CGPA" value={cgpa} icon={<TrendingUp className="w-4 h-4" />} />
-          {/* <ProfileField label="Location" value={location} icon={<MapPin className="w-4 h-4" />} /> */}
           
           {/* Resume Section */}
           <div className="pt-2 border-t border-base-300">
@@ -158,11 +158,11 @@ export default function ProfileSection({ profileData, onEditProfile }: ProfileSe
             <span className="text-sm text-base-content/70 block mb-2 font-medium">Quick Stats:</span>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-primary/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-primary">24</div>
+                <div className="text-2xl font-bold text-primary">{stats.applications}</div>
                 <div className="text-xs text-base-content/70">Applications</div>
               </div>
               <div className="bg-success/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-success">5</div>
+                <div className="text-2xl font-bold text-success">{stats.interviews}</div>
                 <div className="text-xs text-base-content/70">Interviews</div>
               </div>
             </div>

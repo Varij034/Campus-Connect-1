@@ -156,10 +156,14 @@ async def update_my_profile(
     candidate = db.query(Candidate).filter(Candidate.user_id == current_user.id).first()
     
     if not candidate:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+        candidate = Candidate(
+            user_id=current_user.id,
+            name=current_user.email.split("@")[0],
+            email=current_user.email,
+            phone=None,
+            skills_json=[],
         )
+        db.add(candidate)
         
     if profile_update.name is not None:
         candidate.name = profile_update.name
@@ -169,6 +173,22 @@ async def update_my_profile(
         candidate.skills_json = profile_update.skills
     if profile_update.linkedin_url is not None:
         candidate.linkedin_url = profile_update.linkedin_url
+    if profile_update.location is not None:
+        candidate.location = profile_update.location
+    if profile_update.education is not None:
+        candidate.education = profile_update.education
+    if profile_update.college is not None:
+        candidate.college = profile_update.college
+    if profile_update.branch is not None:
+        candidate.branch = profile_update.branch
+    if profile_update.graduation_year is not None:
+        candidate.graduation_year = profile_update.graduation_year
+    if profile_update.cgpa is not None:
+        candidate.cgpa = profile_update.cgpa
+    if profile_update.bio is not None:
+        candidate.bio = profile_update.bio
+    if profile_update.experience is not None:
+        candidate.experience = profile_update.experience
         
     db.commit()
     db.refresh(candidate)

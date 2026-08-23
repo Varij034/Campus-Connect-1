@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import StatCard from '@/components/ui/StatCard';
 import JobCard from '@/components/ui/JobCard';
 import ProfileSection from '@/components/student/ProfileSection';
-import DailyPracticeSection from '@/components/student/DailyPracticeSection';
 import SkillBar from '@/components/student/SkillBar';
 import StudentJobCard from '@/components/student/StudentJobCard';
 import { FileText, Calendar, Eye, TrendingUp, Briefcase, Search, Flame } from 'lucide-react';
@@ -22,9 +21,8 @@ export default function StudentDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const currentStreak = 5;
-  const longestStreak = 12;
-  const solvedToday = false;
+  // TODO: Fetch streak from backend once implemented
+  const currentStreak = 0;
   const jobMatchesCount = jobs.length;
 
   const [profileData, setProfileData] = useState<any>(null);
@@ -47,23 +45,36 @@ export default function StudentDashboard() {
       setApplications(fetchedApps);
       
       if (fetchedProfile) {
+        const fieldsToCheck = [
+          fetchedProfile.name,
+          fetchedProfile.email,
+          fetchedProfile.phone,
+          (fetchedProfile as any).education,
+          (fetchedProfile as any).location,
+          (fetchedProfile as any).bio,
+          (fetchedProfile as any).experience,
+          fetchedProfile.resume_id,
+        ];
+        const filledFields = fieldsToCheck.filter(Boolean).length;
+        const hasSkills = fetchedProfile.skills_json && fetchedProfile.skills_json.length > 0;
+        const totalScore = Math.round(((filledFields + (hasSkills ? 1 : 0)) / 9) * 100);
+
         setProfileData({
           sid: fetchedProfile.id.toString(),
           name: fetchedProfile.name || user?.email.split('@')[0],
           email: fetchedProfile.email || user?.email,
           phone: fetchedProfile.phone || '',
-          college: (fetchedProfile as any).education || '',
-          branch: '',
-          year: '',
-          graduationYear: '',
+          college: (fetchedProfile as any).college || '',
+          branch: (fetchedProfile as any).branch || '',
+          cgpa: (fetchedProfile as any).cgpa || '',
           location: (fetchedProfile as any).location || '',
-          cgpa: '',
           resume: {
             name: fetchedProfile.resume_id ? 'Resume Uploaded' : 'No Resume',
             url: '#',
           },
           isVerified: fetchedProfile.is_verified,
-          profileCompletion: 85,
+          profileCompletion: totalScore,
+          skills: fetchedProfile.skills_json || [],
         });
       } else {
         // Fallback if Candidate doesn't exist
@@ -74,13 +85,12 @@ export default function StudentDashboard() {
           phone: '',
           college: 'Please update your profile',
           branch: '',
-          year: '',
-          graduationYear: '',
-          location: '',
           cgpa: '',
+          location: '',
           resume: { name: 'No Resume', url: '#' },
           isVerified: false,
           profileCompletion: 20,
+          skills: [],
         });
       }
     } catch (err) {
@@ -122,7 +132,7 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Profile Score"
-          value="85%"
+          value={`${profileData?.profileCompletion || 0}%`}
           icon={TrendingUp}
           color="success"
           delay={0.1}
@@ -152,7 +162,15 @@ export default function StudentDashboard() {
 
       {/* Profile Section and AI Recommended Jobs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {profileData && <ProfileSection profileData={profileData} />}
+        {profileData && (
+          <ProfileSection 
+            profileData={profileData} 
+            stats={{ 
+              applications: applications.length, 
+              interviews: applications.filter(a => a.status === 'interview' || a.status === 'accepted').length 
+            }} 
+          />
+        )}
 
         {/* AI Recommended Jobs */}
         <motion.div
@@ -200,13 +218,6 @@ export default function StudentDashboard() {
         </motion.div>
       </div>
 
-      {/* Daily Practice Section */}
-      <DailyPracticeSection
-        solvedToday={solvedToday}
-        currentStreak={currentStreak}
-        longestStreak={longestStreak}
-      />
-
       {/* Skill Insights and Application Status Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Skill Insights */}
@@ -222,9 +233,13 @@ export default function StudentDashboard() {
               Your Skills Overview
             </h3>
             <div className="space-y-3">
-              <SkillBar skill="React.js" level={90} />
-              <SkillBar skill="Node.js" level={75} />
-              <SkillBar skill="System Design" level={60} recommended />
+              {profileData?.skills && profileData.skills.length > 0 ? (
+                profileData.skills.map((skill: string, index: number) => (
+                  <SkillBar key={index} skill={skill} level={70 + (index % 3) * 10} />
+                ))
+              ) : (
+                <p className="text-base-content/70">Add skills to your profile to see insights.</p>
+              )}
             </div>
             <p className="text-sm text-base-content/70 mt-4 italic">
               💡 View detailed skill gap analysis for each job in the job details page!
@@ -249,7 +264,7 @@ export default function StudentDashboard() {
                   <div key={app.id || index} className="flex items-center justify-between p-4 bg-base-200 rounded-xl">
                     <div>
                       <p className="font-semibold text-base-content">{app.job_title}</p>
-                      <p className="text-sm text-base-content/70">Applied {formatDate(app.applied_at)}</p>
+                      <p className="text-sm text-base-content/70">Applied {formatDate(app.applied_at || new Date().toISOString())}</p>
                     </div>
                     <div className={`badge ${
                       app.status === 'accepted' ? 'badge-success' : 
@@ -288,7 +303,7 @@ export default function StudentDashboard() {
         ) : error ? (
           <div className="alert alert-error">
             <span>{error}</span>
-            <button onClick={fetchJobs} className="btn btn-sm btn-ghost">Retry</button>
+            <button onClick={fetchDashboardData} className="btn btn-sm btn-ghost">Retry</button>
           </div>
         ) : jobs.length === 0 ? (
           <div className="text-center py-12">

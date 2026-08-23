@@ -36,6 +36,8 @@ def get_db():
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database connection failed: {str(e)}. Please ensure PostgreSQL is running."
         )
+    except HTTPException:
+        raise
     except Exception as e:
         db.close()
         raise HTTPException(

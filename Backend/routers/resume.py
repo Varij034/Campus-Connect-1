@@ -19,6 +19,7 @@ from config import (
     USE_LLM_RESUME_ENRICH_UPDATE_CANDIDATE,
 )
 from llm.resume_enricher import enrich_resume
+from utils.cloudinary_helper import upload_resume_to_cloudinary
 
 router = APIRouter(prefix="/api/v1/resume", tags=["Resume"])
 
@@ -134,6 +135,9 @@ async def upload_resume(
                             candidate.skills_json = merged
                             db.commit()
 
+        # Upload to Cloudinary before cleaning up
+        cloudinary_url = upload_resume_to_cloudinary(file_path, public_id=resume_id)
+
         # Store in MongoDB
         mongo_db = get_mongo_db()
         resume_doc = {
@@ -142,6 +146,7 @@ async def upload_resume(
             "filename": file.filename,
             "raw_text": parsed_data.get("raw_text", ""),
             "parsed_data": parsed_data,
+            "cloudinary_url": cloudinary_url,
             "created_at": str(uuid.uuid4())  # Use timestamp in production
         }
         

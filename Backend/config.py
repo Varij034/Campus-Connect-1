@@ -68,9 +68,14 @@ JWT_SECRET_KEY: str = os.getenv(
 JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRATION_HOURS: int = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
 
-# LLM / Groq Configuration
-GROQ_API_KEY: Optional[str] = os.getenv("GROQ_API_KEY")
-GROQ_MODEL: str = os.getenv("GROQ_MODEL", "mixtral-8x7b-32768")
+# LLM Settings
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")
+
+# Cloudinary Settings
+CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "")
+CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "")
 
 # Vector / Qdrant Configuration
 QDRANT_URL: str = os.getenv("QDRANT_URL", "http://localhost:6333")

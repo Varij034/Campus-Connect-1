@@ -264,6 +264,33 @@ export const studentApi = {
   getApplications: async (): Promise<StudentApplication[]> => {
     return apiRequest<StudentApplication[]>('/api/v1/student/applications');
   },
+
+  applyToJob: async (jobId: number): Promise<{ message: string; application_id?: number }> => {
+    return apiRequest<{ message: string; application_id?: number }>(`/api/v1/student/jobs/${jobId}/apply`, {
+      method: 'POST',
+    });
+  },
+
+  analyzeSkillGap: async (jobId: number): Promise<any> => {
+    return apiRequest<any>('/api/v1/student/skill-gap/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ job_id: jobId }),
+    });
+  },
+
+  getResumeFeedback: async (jobId?: number): Promise<any> => {
+    return apiRequest<any>('/api/v1/student/resume/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ job_id: jobId }),
+    });
+  },
+
+  interpretRejection: async (feedbackId: string): Promise<any> => {
+    return apiRequest<any>('/api/v1/student/rejection/interpret', {
+      method: 'POST',
+      body: JSON.stringify({ feedback_id: feedbackId }),
+    });
+  },
 };
 
 // ATS API
@@ -318,6 +345,17 @@ export const hrApi = {
   }> => {
     return apiRequest('/api/v1/hr/stats');
   },
+
+  getProfile: async (): Promise<any> => {
+    return apiRequest<any>('/api/v1/hr/profile');
+  },
+
+  updateProfile: async (data: any): Promise<any> => {
+    return apiRequest<any>('/api/v1/hr/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 // Candidates API
@@ -341,6 +379,17 @@ export const candidatesApi = {
     return apiRequest<Candidate>(`/api/v1/candidates/${candidateId}`);
   },
 
+  getMe: async (): Promise<Candidate> => {
+    return apiRequest<Candidate>('/api/v1/candidates/me');
+  },
+
+  updateMe: async (data: any): Promise<Candidate> => {
+    return apiRequest<Candidate>('/api/v1/candidates/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
   getEvaluations: async (candidateId: number): Promise<EvaluationResponse[]> => {
     return apiRequest<EvaluationResponse[]>(`/api/v1/candidates/${candidateId}/evaluations`);
   },
@@ -348,6 +397,30 @@ export const candidatesApi = {
 
 // Resume API
 export const resumeApi = {
+  upload: async (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // We cannot use apiRequest because FormData shouldn't have Content-Type: application/json
+    const token = getToken();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/api/v1/resume/upload`, {
+      method: 'POST',
+      headers: headers as HeadersInit,
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const data = await response.json();
+      throw new ApiException(response.status, data.detail || `HTTP ${response.status}`, data);
+    }
+    return response.json();
+  },
+
   get: async (resumeId: string): Promise<{ resume_id: string; parsed_data: any; raw_text?: string; message: string }> => {
     return apiRequest<{ resume_id: string; parsed_data: any; raw_text?: string; message: string }>(`/api/v1/resume/${resumeId}`);
   },
@@ -512,6 +585,20 @@ export const jobLlmApi = {
       body: JSON.stringify({ description }),
     });
   },
+
+  generateDescription: async (prompt: string): Promise<{ job_description: string }> => {
+    return apiRequest('/api/v1/llm/jobs/generate-description', {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    });
+  },
+
+  rewriteDescription: async (description: string, tone: string): Promise<{ job_description: string }> => {
+    return apiRequest('/api/v1/llm/jobs/rewrite-description', {
+      method: 'POST',
+      body: JSON.stringify({ description, tone }),
+    });
+  },
 };
 
 // Recruiter LLM API (Matchmaker - resume summary per candidate/job)
@@ -545,5 +632,27 @@ export const chatApi = {
         conversation_id: conversationId,
       }),
     });
+  },
+};
+
+// Feedback API
+export const feedbackApi = {
+  generate: async (candidateId: number, jobId: number, rejectionReason?: string): Promise<any> => {
+    return apiRequest('/api/v1/feedback/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        candidate_id: candidateId,
+        job_id: jobId,
+        rejection_reason: rejectionReason,
+      }),
+    });
+  },
+
+  get: async (feedbackId: string): Promise<any> => {
+    return apiRequest(`/api/v1/feedback/${feedbackId}`);
+  },
+
+  getByCandidate: async (candidateId: number): Promise<any[]> => {
+    return apiRequest(`/api/v1/feedback/candidate/${candidateId}`);
   },
 };

@@ -22,7 +22,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import SkillGapCard from '@/components/student/SkillGapCard';
-import { jobsApi, messagesApi } from '@/lib/api';
+import { jobsApi, messagesApi, studentApi } from '@/lib/api';
 import { Job } from '@/types/api';
 import { handleApiError } from '@/lib/errors';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -68,15 +68,19 @@ export default function JobDetailsPage() {
     }
   }, [showToast]);
 
-  const handleApply = () => {
-    setIsApplied(true);
-    setToastMessage(`Application submitted successfully for ${job?.title} at ${job?.company}!`);
-    setShowToast(true);
-
-    // TODO: Make API call to submit application
-    setTimeout(() => {
-      router.push('/student/jobs');
-    }, 2000);
+  const handleApply = async () => {
+    try {
+      setIsApplied(true);
+      await studentApi.applyToJob(parseInt(jobId));
+      setToastMessage(`Application submitted successfully for ${job?.title} at ${job?.company}!`);
+      setShowToast(true);
+      setTimeout(() => {
+        router.push('/student/jobs');
+      }, 2000);
+    } catch (err: any) {
+      setIsApplied(false);
+      setError(handleApiError(err));
+    }
   };
 
   if (isLoading) {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Briefcase, GraduationCap, Save } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi } from '@/lib/api';
+import { authApi, candidatesApi, resumeApi } from '@/lib/api';
 import { handleApiError } from '@/lib/errors';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -32,17 +32,17 @@ export default function ProfilePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const userData = await authApi.getMe();
+      const candidate = await candidatesApi.getMe();
       setFormData({
-        name: userData.email.split('@')[0],
-        email: userData.email,
-        phone: '',
-        location: '',
-        bio: '',
-        skills: [],
-        education: '',
-        experience: '',
-        resume: '',
+        name: candidate.name || '',
+        email: candidate.email || '',
+        phone: candidate.phone || '',
+        location: (candidate as any).location || '',
+        bio: (candidate as any).bio || '',
+        skills: candidate.skills_json?.skills || [],
+        education: (candidate as any).education || '',
+        experience: (candidate as any).experience || '',
+        resume: candidate.resume_id || '',
       });
     } catch (err) {
       setError(handleApiError(err));
@@ -72,12 +72,36 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement profile update API call
     try {
+      await candidatesApi.updateMe({
+        name: formData.name,
+        phone: formData.phone,
+        location: formData.location,
+        bio: formData.bio,
+        skills_json: { skills: formData.skills },
+        education: formData.education,
+        experience: formData.experience,
+      });
       await refreshUser();
       alert('Profile updated successfully!');
     } catch (err) {
       alert('Failed to update profile: ' + handleApiError(err));
+    }
+  };
+
+  const [isUploading, setIsUploading] = useState(false);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setIsUploading(true);
+    try {
+      const result = await resumeApi.upload(file);
+      setFormData({ ...formData, resume: result.resume_id || 'Uploaded' });
+      alert('Resume uploaded successfully!');
+    } catch (err) {
+      alert('Failed to upload resume: ' + handleApiError(err));
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -296,8 +320,11 @@ export default function ProfilePage() {
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
                   className="file-input file-input-bordered w-full"
                 />
+                {isUploading && <p className="text-sm text-info mt-2">Uploading resume...</p>}
                 {formData.resume && (
                   <p className="text-sm text-base-content/70 mt-2">Current: {formData.resume}</p>
                 )}

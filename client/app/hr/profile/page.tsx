@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Mail, Phone, MapPin, Globe, Save, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { authApi } from '@/lib/api';
+import { hrApi } from '@/lib/api';
 import { handleApiError } from '@/lib/errors';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -31,16 +31,16 @@ export default function HRProfilePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const userData = await authApi.getMe();
+      const profile = await hrApi.getProfile();
       setFormData({
-        companyName: '',
-        email: userData.email,
-        phone: '',
-        location: '',
-        website: '',
-        description: '',
-        industry: 'Technology',
-        companySize: '100-500',
+        companyName: profile.company_name || '',
+        email: profile.email || user?.email || '',
+        phone: profile.phone || '',
+        location: profile.location || '',
+        website: profile.website || '',
+        description: profile.description || '',
+        industry: profile.industry || 'Technology',
+        companySize: profile.company_size || '100-500',
       });
     } catch (err) {
       setError(handleApiError(err));
@@ -51,8 +51,16 @@ export default function HRProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement profile update API call
     try {
+      await hrApi.updateProfile({
+        company_name: formData.companyName,
+        phone: formData.phone,
+        location: formData.location,
+        website: formData.website,
+        description: formData.description,
+        industry: formData.industry,
+        company_size: formData.companySize,
+      });
       await refreshUser();
       alert('Profile updated successfully!');
     } catch (err) {

@@ -11,8 +11,8 @@ import StudentJobCard from '@/components/student/StudentJobCard';
 import { FileText, Calendar, Eye, TrendingUp, Briefcase, Search, Flame } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { jobsApi, authApi } from '@/lib/api';
-import { Job } from '@/types/api';
+import { jobsApi, authApi, candidatesApi, studentApi } from '@/lib/api';
+import { Job, StudentApplication } from '@/types/api';
 import { handleApiError } from '@/lib/errors';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -27,41 +27,67 @@ export default function StudentDashboard() {
   const solvedToday = false;
   const jobMatchesCount = jobs.length;
 
+  const [profileData, setProfileData] = useState<any>(null);
+  const [applications, setApplications] = useState<StudentApplication[]>([]);
+
   useEffect(() => {
-    fetchJobs();
+    fetchDashboardData();
   }, []);
 
-  const fetchJobs = async () => {
+  const fetchDashboardData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedJobs = await jobsApi.list(0, 6);
+      const [fetchedJobs, fetchedProfile, fetchedApps] = await Promise.all([
+        jobsApi.list(0, 6),
+        candidatesApi.getMe().catch(() => null), // Gracefully handle if candidate record is missing
+        studentApi.getApplications().catch(() => []),
+      ]);
       setJobs(fetchedJobs);
+      setApplications(fetchedApps);
+      
+      if (fetchedProfile) {
+        setProfileData({
+          sid: fetchedProfile.id.toString(),
+          name: fetchedProfile.name || user?.email.split('@')[0],
+          email: fetchedProfile.email || user?.email,
+          phone: fetchedProfile.phone || '',
+          college: (fetchedProfile as any).education || '',
+          branch: '',
+          year: '',
+          graduationYear: '',
+          location: (fetchedProfile as any).location || '',
+          cgpa: '',
+          resume: {
+            name: fetchedProfile.resume_id ? 'Resume Uploaded' : 'No Resume',
+            url: '#',
+          },
+          isVerified: fetchedProfile.is_verified,
+          profileCompletion: 85,
+        });
+      } else {
+        // Fallback if Candidate doesn't exist
+        setProfileData({
+          sid: user?.id.toString() || 'STU2024001',
+          name: user?.email.split('@')[0] || 'Student',
+          email: user?.email || '',
+          phone: '',
+          college: 'Please update your profile',
+          branch: '',
+          year: '',
+          graduationYear: '',
+          location: '',
+          cgpa: '',
+          resume: { name: 'No Resume', url: '#' },
+          isVerified: false,
+          profileCompletion: 20,
+        });
+      }
     } catch (err) {
       setError(handleApiError(err));
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Mock profile data - will be replaced when profile API is available
-  const profileData = {
-    sid: user?.id.toString() || 'STU2024001',
-    name: user?.email.split('@')[0] || 'Student',
-    email: user?.email || '',
-    phone: '+91 98765 43210',
-    college: 'ABC University',
-    branch: 'Computer Science',
-    year: 'Final Year',
-    graduationYear: '2024',
-    location: 'Bangalore, India',
-    cgpa: '8.5',
-    resume: {
-      name: 'Resume.pdf',
-      url: '#',
-    },
-    isVerified: true,
-    profileCompletion: 85,
   };
 
   const formatDate = (dateString: string) => {
@@ -110,7 +136,7 @@ export default function StudentDashboard() {
         />
         <StatCard
           title="Applications"
-          value={5}
+          value={applications.length}
           icon={FileText}
           color="secondary"
           delay={0.3}
@@ -126,9 +152,7 @@ export default function StudentDashboard() {
 
       {/* Profile Section and AI Recommended Jobs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProfileSection 
-          profileData={profileData}
-        />
+        {profileData && <ProfileSection profileData={profileData} />}
 
         {/* AI Recommended Jobs */}
         <motion.div
@@ -218,27 +242,23 @@ export default function StudentDashboard() {
           <div className="card-body">
             <h2 className="card-title text-xl text-base-content mb-4">Application Status</h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-base-200 rounded-xl">
-                <div>
-                  <p className="font-semibold text-base-content">Frontend Developer - Tech Innovations</p>
-                  <p className="text-sm text-base-content/70">Applied 3 days ago</p>
-                </div>
-                <div className="badge badge-primary">Under Review</div>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-base-200 rounded-xl">
-                <div>
-                  <p className="font-semibold text-base-content">Software Engineer - Cloud Solutions</p>
-                  <p className="text-sm text-base-content/70">Applied 1 week ago</p>
-                </div>
-                <div className="badge badge-success">Interview Scheduled</div>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-base-200 rounded-xl">
-                <div>
-                  <p className="font-semibold text-base-content">UI/UX Designer - Creative Studio</p>
-                  <p className="text-sm text-base-content/70">Applied 2 weeks ago</p>
-                </div>
-                <div className="badge badge-warning">Pending</div>
-              </div>
+              {applications.length === 0 ? (
+                <p className="text-base-content/70">No applications yet. Start applying to jobs!</p>
+              ) : (
+                applications.slice(0, 3).map((app, index) => (
+                  <div key={app.id || index} className="flex items-center justify-between p-4 bg-base-200 rounded-xl">
+                    <div>
+                      <p className="font-semibold text-base-content">{app.job_title}</p>
+                      <p className="text-sm text-base-content/70">Applied {formatDate(app.applied_at)}</p>
+                    </div>
+                    <div className={`badge ${
+                      app.status === 'accepted' ? 'badge-success' : 
+                      app.status === 'rejected' ? 'badge-error' : 
+                      app.status === 'shortlisted' ? 'badge-info' : 'badge-primary'
+                    }`}>{app.status.toUpperCase()}</div>
+                  </div>
+                ))
+              )}
             </div>
             <div className="card-actions justify-end mt-4">
               <Link href="/student/applications" className="btn btn-primary btn-sm">

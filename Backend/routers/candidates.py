@@ -122,6 +122,60 @@ async def evaluate_candidate(
         )
 
 
+@router.get("/me", response_model=CandidateResponse)
+async def get_my_profile(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get the current logged in candidate's profile"""
+    candidate = db.query(Candidate).filter(Candidate.user_id == current_user.id).first()
+    
+    if not candidate:
+        # Create it with empty fields
+        candidate = Candidate(
+            user_id=current_user.id,
+            name=current_user.email.split("@")[0],
+            email=current_user.email,
+            phone=None,
+            skills_json=[],
+        )
+        db.add(candidate)
+        db.commit()
+        db.refresh(candidate)
+        
+    return candidate
+
+
+@router.put("/me", response_model=CandidateResponse)
+async def update_my_profile(
+    profile_update: CandidateUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Update the current logged in candidate's profile"""
+    candidate = db.query(Candidate).filter(Candidate.user_id == current_user.id).first()
+    
+    if not candidate:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Candidate profile not found"
+        )
+        
+    if profile_update.name is not None:
+        candidate.name = profile_update.name
+    if profile_update.phone is not None:
+        candidate.phone = profile_update.phone
+    if profile_update.skills is not None:
+        candidate.skills_json = profile_update.skills
+    if profile_update.linkedin_url is not None:
+        candidate.linkedin_url = profile_update.linkedin_url
+        
+    db.commit()
+    db.refresh(candidate)
+    
+    return candidate
+
+
 @router.get("", response_model=List[CandidateResponse])
 async def list_candidates(
     skip: int = 0,

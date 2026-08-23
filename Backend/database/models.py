@@ -81,6 +81,7 @@ class Candidate(Base):
     is_verified = Column(Boolean, default=False, nullable=False)
     verified_at = Column(DateTime(timezone=True), nullable=True)
     verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    linkedin_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from database.postgres import get_db
-from database.models import User, Job, Candidate, Application, Evaluation
+from database.models import User, Job, Candidate, Application, Evaluation, ApplicationStatus
 from schemas.api import (
     JobSearchRequest, JobSearchResponse,
     SkillGapRequest, SkillGapResponse,
@@ -274,4 +274,56 @@ async def get_my_applications(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error fetching applications: {str(e)}"
+        )
+
+
+@router.post("/jobs/{job_id}/apply", response_model=StudentApplicationResponse)
+async def apply_for_job(
+    job_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Apply for a specific job"""
+    try:
+        candidate = db.query(Candidate).filter(Candidate.user_id == current_user.id).first()
+        if not candidate:
+            raise HTTPException(status_code=400, detail="Candidate profile not found")
+        
+        job = db.query(Job).filter(Job.id == job_id).first()
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+            
+        existing_app = db.query(Application).filter(
+            Application.candidate_id == candidate.id,
+            Application.job_id == job_id
+        ).first()
+        
+        if existing_app:
+            raise HTTPException(status_code=400, detail="Application already exists")
+            
+        new_app = Application(
+            job_id=job_id,
+            candidate_id=candidate.id,
+            status=ApplicationStatus.PENDING
+        )
+        db.add(new_app)
+        db.commit()
+        db.refresh(new_app)
+        
+        return StudentApplicationResponse(
+            id=new_app.id,
+            job_id=job.id,
+            job_title=job.title,
+            company=job.company,
+            status=new_app.status.value,
+            applied_at=new_app.applied_at.isoformat() if new_app.applied_at else None,
+            ats_score=None,
+            passed=None,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error applying for job: {str(e)}"
         )

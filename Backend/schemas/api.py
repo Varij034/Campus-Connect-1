@@ -89,6 +89,7 @@ class CandidateUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     skills: Optional[List[str]] = None
+    linkedin_url: Optional[str] = None
 
 
 class CandidateResponse(BaseModel):
@@ -102,6 +103,7 @@ class CandidateResponse(BaseModel):
     is_verified: bool = False
     verified_at: Optional[datetime] = None
     verified_by: Optional[int] = None
+    linkedin_url: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime]
 

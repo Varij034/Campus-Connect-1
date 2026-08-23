@@ -1,6 +1,6 @@
 """
 Database seeding script
-Seeds the database with dummy data from test_dummy_data.py.
+Seeds the database with dummy data for development and demos.
 Includes hackathon demo data: TPO, evaluations, badges, mentors, events,
 prep modules, aptitude test, conversations, verification, placements.
 """
@@ -19,7 +19,232 @@ from database.models import (
 )
 from auth.password import get_password_hash
 from resume_parser import ResumeParser
-from test_dummy_data import DUMMY_RESUMES, JOB_REQUIREMENTS
+
+# Dummy resume data for students
+DUMMY_RESUMES = {
+    "varij_nayan_mishra": """
+VARIJ NAYAN MISHRA
+Email: varij.mishra@example.com
+Phone: +91-9876543210
+Location: Mumbai, India
+
+SKILLS
+Python, FastAPI, REST API, SQL, PostgreSQL, Docker, Git, JavaScript, React, 
+Machine Learning, Data Analysis, Pandas, NumPy, Problem Solving
+
+EDUCATION
+Bachelor of Technology in Computer Science
+Mumbai University, 2021-2025
+CGPA: 8.5/10
+
+Master of Science in Data Science (Pursuing)
+IIT Mumbai, 2025-Present
+
+EXPERIENCE
+Software Development Intern
+Tech Solutions Inc., June 2024 - December 2024 (6 months)
+- Developed REST APIs using Python and FastAPI framework
+- Worked with PostgreSQL database for data management
+- Implemented authentication and authorization systems
+- Collaborated in Agile development environment
+
+Backend Developer (Part-time)
+StartupXYZ, January 2024 - May 2024 (5 months)
+- Built microservices architecture using FastAPI
+- Designed database schemas and optimized queries
+- Integrated third-party APIs for payment processing
+
+PROJECTS
+E-commerce API Platform
+- Built complete REST API using FastAPI and PostgreSQL
+- Implemented JWT authentication, order management system
+- Deployed using Docker containers on AWS
+Technologies: Python, FastAPI, PostgreSQL, Docker, AWS
+
+Machine Learning Prediction System
+- Developed ML model for predictive analytics
+- Used scikit-learn for model training and evaluation
+Technologies: Python, Machine Learning, Pandas, NumPy
+
+CERTIFICATIONS
+- AWS Certified Cloud Practitioner
+- Python for Data Science (Coursera)
+- REST API Development (Udemy)
+""",
+
+    "rohit_sharma": """
+ROHIT SHARMA
+Email: rohit.sharma@example.com
+Phone: +91-8765432109
+Location: Delhi, India
+
+SKILLS
+Java, Spring Boot, Hibernate, MySQL, MongoDB, JavaScript, Angular, 
+Web Development, REST API, Microservices, Git, Linux, Docker
+
+EDUCATION
+Bachelor of Engineering in Computer Science
+Delhi Technical University, 2020-2024
+Percentage: 82%
+
+EXPERIENCE
+Software Engineer
+Infotech Solutions Ltd., July 2024 - Present (6 months)
+- Developed enterprise applications using Spring Boot framework
+- Worked with MySQL and MongoDB databases
+- Created RESTful web services and API endpoints
+- Participated in code reviews and testing procedures
+
+Java Developer Intern
+GlobalTech Corp., January 2024 - June 2024 (6 months)
+- Assisted in developing web applications using Java and Spring
+- Performed database operations and query optimization
+- Gained experience in Agile methodologies
+
+PROJECTS
+Employee Management System
+- Full-stack application with Spring Boot backend and Angular frontend
+- Features include CRUD operations, authentication, reporting
+Technologies: Java, Spring Boot, Angular, MySQL
+
+E-Learning Platform
+- Online course management system with user dashboard
+- Payment integration and certificate generation
+Technologies: Spring Boot, MongoDB, React, Stripe API
+
+CERTIFICATIONS
+- Oracle Certified Java Programmer
+- Spring Framework Certification
+""",
+
+    "ahana_basak": """
+AHANA BASAK
+Email: ahana.basak@example.com
+Phone: +91-7654321098
+Location: Kolkata, India
+
+SKILLS
+Python, Django, Flask, HTML, CSS, JavaScript, Bootstrap, SQL, 
+Database Design, Web Development, API Development, Git, Responsive Design
+
+EDUCATION
+Bachelor of Science in Computer Science
+Jadavpur University, 2021-2025
+CGPA: 7.8/10
+
+EXPERIENCE
+Web Developer Intern
+Digital Creations Pvt. Ltd., March 2024 - August 2024 (6 months)
+- Developed responsive web applications using Django framework
+- Designed and implemented database models
+- Created REST APIs for frontend integration
+- Worked on frontend development using HTML, CSS, JavaScript
+
+Freelance Web Developer
+June 2023 - February 2024 (9 months)
+- Designed and developed websites for small businesses
+- Implemented content management systems
+- Provided maintenance and support services
+
+PROJECTS
+Blog Platform
+- Full-featured blog application with user authentication
+- Comments, likes, and admin panel functionality
+Technologies: Django, PostgreSQL, Bootstrap, JavaScript
+
+Task Management App
+- Web-based task tracking application with team collaboration
+- Real-time updates and notifications
+Technologies: Django, SQLite, AJAX, jQuery
+
+CERTIFICATIONS
+- Django Web Framework Certification
+- Full Stack Web Development Bootcamp
+""",
+
+    "sunipa_bose": """
+SUNIPA BOSE
+Email: sunipa.bose@example.com
+Phone: +91-6543210987
+Location: Bangalore, India
+
+SKILLS
+JavaScript, React, Node.js, Express.js, MongoDB, HTML5, CSS3, 
+TypeScript, Redux, REST API, GraphQL, Git, Responsive Design, UI/UX
+
+EDUCATION
+Bachelor of Technology in Information Technology
+Bangalore Institute of Technology, 2022-2026
+CGPA: 8.2/10
+
+EXPERIENCE
+Frontend Developer Intern
+WebTech Innovations, May 2024 - November 2024 (7 months)
+- Developed user interfaces using React and TypeScript
+- Built reusable components and implemented state management with Redux
+- Integrated REST APIs and GraphQL endpoints
+- Collaborated with UI/UX designers for responsive designs
+
+Web Development Intern
+CodeCraft Solutions, December 2023 - April 2024 (5 months)
+- Created responsive web pages using HTML, CSS, JavaScript
+- Worked on frontend frameworks and libraries
+- Assisted in testing and debugging web applications
+
+PROJECTS
+Social Media Dashboard
+- Real-time dashboard application with React and Redux
+- Data visualization using charts and graphs
+- Real-time notifications and updates
+Technologies: React, Redux, Node.js, MongoDB, Chart.js
+
+E-Commerce Frontend
+- Complete shopping interface with cart and checkout
+- User authentication and product search functionality
+Technologies: React, TypeScript, Material-UI, REST API
+
+CERTIFICATIONS
+- React Developer Certification (Meta)
+- Full Stack Web Development Specialization
+- JavaScript Algorithms and Data Structures
+"""
+}
+
+# Sample job requirements
+JOB_REQUIREMENTS = {
+    "backend_developer": {
+        "job_title": "Backend Developer",
+        "required_skills": ["Python", "FastAPI", "REST API", "SQL", "Git"],
+        "preferred_skills": ["Docker", "PostgreSQL", "AWS", "Microservices"],
+        "education_level": "Bachelor's",
+        "years_of_experience": 1,
+        "job_description": "We are looking for a skilled Backend Developer with experience in Python and FastAPI. The candidate should have strong knowledge of REST API development, database design, and cloud deployment.",
+        "keywords": ["backend", "API", "database", "cloud", "microservices"],
+        "minimum_ats_score": 60.0
+    },
+    
+    "fullstack_developer": {
+        "job_title": "Full Stack Developer",
+        "required_skills": ["JavaScript", "React", "Node.js", "REST API", "Database"],
+        "preferred_skills": ["TypeScript", "MongoDB", "Express.js", "GraphQL"],
+        "education_level": "Bachelor's",
+        "years_of_experience": 0,
+        "job_description": "Looking for a Full Stack Developer proficient in JavaScript, React, and Node.js. Experience with databases and API development is required.",
+        "keywords": ["fullstack", "javascript", "react", "node", "web development"],
+        "minimum_ats_score": 55.0
+    },
+    
+    "python_developer": {
+        "job_title": "Python Developer",
+        "required_skills": ["Python", "Web Framework", "Database", "API"],
+        "preferred_skills": ["Django", "Flask", "FastAPI", "PostgreSQL"],
+        "education_level": "Bachelor's",
+        "years_of_experience": 0,
+        "job_description": "Seeking a Python Developer with knowledge of web frameworks. Strong problem-solving skills and database experience preferred.",
+        "keywords": ["python", "web development", "database", "framework"],
+        "minimum_ats_score": 50.0
+    }
+}
 
 # Create database tables if they don't exist
 Base.metadata.create_all(bind=engine)
